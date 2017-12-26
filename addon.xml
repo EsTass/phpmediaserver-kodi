@@ -12,7 +12,7 @@ provider-name="Tass">
 </extension>
 <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <summary lang="en">phpmediaserver pluging</summary>
+    <summary lang="en">phpmediaserver plugin</summary>
     <description lang="en">Testing PHPMediaServer.</description>
     <disclaimer lang="en">Testing</disclaimer>
     <assets>
