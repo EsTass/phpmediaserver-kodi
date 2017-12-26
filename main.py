@@ -40,9 +40,9 @@ _handle = int(sys.argv[1])
 }
 '''
 
-USERNAME = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "username" );
-PASSWORD = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "password" );
-url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" );
+USERNAME = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "username" )
+PASSWORD = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "password" )
+url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
 
 payload = {'r' : 'r', 'action' : 'login', 'user': USERNAME, 'pass': PASSWORD}
 
@@ -55,9 +55,9 @@ r = s.post(url, data=payload, verify=False)
 #print( r.text.encode('unicode-escape') )
 #print( r.status_code.encode('unicode-escape') )
 
-#for cookie in r.cookies:
+for cookie in r.cookies:
     #print (cookie.name, cookie.value)
-    #PHPSESSION = cookie.value
+    PHPSESSION = cookie.value
     
 payload = {'r' : 'r', 'action' : 'listkodi'}
 
@@ -82,6 +82,10 @@ def encoded_dict(in_dict):
 
 VIDEOS = encoded_dict( VIDEOS )
 
+def extract_text(s, leader, trailer):
+  end_of_leader = s.index(leader) + len(leader)
+  start_of_trailer = s.index(trailer, end_of_leader)
+  return s[end_of_leader:start_of_trailer]
 
 def get_url(**kwargs):
     """
@@ -225,7 +229,26 @@ def play_video(path):
     play_item = xbmcgui.ListItem(path=path)
     # Pass the item to the Kodi player.
     xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
-
+    
+    xbmc.sleep(10000)
+    
+    time = 0
+    while xbmc.Player().isPlaying():
+        time = xbmc.Player().getTime()
+        xbmc.sleep(1000)
+    
+    if time > 0:
+        timetotal = 0
+        #xbmcgui.Dialog().ok( "Time: ", str( time ))
+        #urltime = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+        s = requests.session()
+        urltime = url
+        payload = { 'r' : 'r', 'action' : 'playstop', 'timeplayed' : int( time ), \
+            'timetotal' : int( timetotal ), 'idmedia' : extract_text( path, 'idmedia=', '&' ),\
+            'PHPSESSION' : PHPSESSION
+                }
+        r = s.get(url, params=payload, verify=False)
+        
 
 def router(paramstring):
     """

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.video.phpmediaserver"
-version="0.1.3"
+version="0.1.4"
 name="phpmediaserver"
 provider-name="Tass">
 <requires>
@@ -20,7 +20,7 @@ provider-name="Tass">
         <fanart>resources\bg.jpg</fanart>
         <screenshot>resources\bg.jpg</screenshot>    
     </assets>
-    <news>Test</news>
+    <news>0.1.4 set played time</news>
     <source>https://github.com/EsTass/phpmediaserver-kodi/archive/master.zip</source>
 </extension>
 </addon>
