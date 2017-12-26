@@ -21,6 +21,6 @@ provider-name="Tass">
         <screenshot>resources\bg.jpg</screenshot>    
     </assets>
     <news>0.1.4 set played time</news>
-    <source>https://github.com/EsTass/phpmediaserver-kodi/archive/master.zip</source>
+    <source>https://github.com/EsTass/phpmediaserver-kodi/</source>
 </extension>
 </addon>
