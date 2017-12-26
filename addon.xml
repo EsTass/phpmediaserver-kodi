@@ -21,6 +21,6 @@ provider-name="Tass">
         <screenshot>resources\bg.jpg</screenshot>    
     </assets>
     <news>Test</news>
-    <source>https://github.com/EsTass/phpmediaserver</source>
+    <source>https://github.com/EsTass/phpmediaserver-kodi/archive/master.zip</source>
 </extension>
 </addon>
