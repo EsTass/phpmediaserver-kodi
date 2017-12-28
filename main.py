@@ -230,7 +230,7 @@ def play_video(path):
     # Pass the item to the Kodi player.
     xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
     
-    xbmc.sleep(10000)
+    xbmc.sleep(1000)
     
     time = 0
     while xbmc.Player().isPlaying():

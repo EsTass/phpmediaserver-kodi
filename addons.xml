@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+    <addon id="plugin.video.phpmediaserver"
+        name="phpmediaserver"
+        version="0.1.8"
+        provider-name="xbmc-tass">
+    <requires>
+        <import addon="xbmc.python" version="2.24.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+    </requires>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">phpmediaserver plugin</summary>
+        <description lang="en">Testing PHPMediaServer.</description>
+        <platform>all</platform>
+    </extension>
+    </addon>
+</addons>

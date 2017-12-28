@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.video.phpmediaserver"
-version="0.1.4"
+version="0.1.8"
 name="phpmediaserver"
 provider-name="Tass">
 <requires>
@@ -16,11 +16,22 @@ provider-name="Tass">
     <description lang="en">Testing PHPMediaServer.</description>
     <disclaimer lang="en">Testing</disclaimer>
     <assets>
-        <icon>resources\bg.jpg</icon>
+        <icon>icon.png</icon>
         <fanart>resources\bg.jpg</fanart>
         <screenshot>resources\bg.jpg</screenshot>    
     </assets>
-    <news>0.1.4 set played time</news>
+    <news>
+0.1.8 auto update
+0.1.6 change update method
+0.1.5 update
+0.1.4 set played time
+    </news>
     <source>https://github.com/EsTass/phpmediaserver-kodi/</source>
+</extension>
+<extension point="xbmc.addon.repository"
+              name="phpmediaserver">
+    <info>https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml</info>
+    <checksum>https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml.md5</checksum>
+    <datadir>https://github.com/EsTass/phpmediaserver-kodi/archive/master.zip</datadir>
 </extension>
 </addon>
