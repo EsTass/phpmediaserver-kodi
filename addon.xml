@@ -30,8 +30,8 @@ provider-name="Tass">
 </extension>
 <extension point="xbmc.addon.repository"
               name="phpmediaserver">
-    <info>https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml</info>
+    <info compressed="false">https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml</info>
     <checksum>https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml.md5</checksum>
-    <datadir>https://github.com/EsTass/phpmediaserver-kodi/archive/master.zip</datadir>
+    <datadir>https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/</datadir>
 </extension>
 </addon>
