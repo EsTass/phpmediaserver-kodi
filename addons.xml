@@ -2,7 +2,7 @@
 <addons>
     <addon id="plugin.video.phpmediaserver"
         name="phpmediaserver"
-        version="0.1.8"
+        version="0.1.9"
         provider-name="xbmc-tass">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>

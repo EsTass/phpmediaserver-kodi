@@ -182,14 +182,39 @@ def list_videos(category):
     :param category: Category name
     :type category: str
     """
+    
+    #UPDATE
+    videos = get_videos(category)
+    if 'update' in videos[0] \
+    and videos[0]['update'] == True:
+        url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+        payload = {'r' : 'r', 'action' : 'listkodi'}
+        r = s.get(url, params=payload, verify=False)
+        VIDEOS = json.loads(r.text)
+        list_categories()
+        pass
+    
+    #SEARCH
+    videos = get_videos(category)
+    if 'search' in videos[0] \
+    and videos[0]['search'] == True:
+        search = xbmcgui.Dialog().input( category )
+        url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+        payload = {'r' : 'r', 'action' : 'listkodi', 'search' : search }
+        r = s.get(url, params=payload, verify=False)
+        videos = json.loads(r.text)
+        pass
+    else:
+        # Get the list of videos in the category.
+        videos = get_videos(category)
+    
+    
     # Set plugin category. It is displayed in some skins as the name
     # of the current section.
     xbmcplugin.setPluginCategory(_handle, category)
     # Set plugin content. It allows Kodi to select appropriate views
     # for this type of content.
     xbmcplugin.setContent(_handle, 'videos')
-    # Get the list of videos in the category.
-    videos = get_videos(category)
     # Iterate through videos.
     for video in videos:
         # Create a list item with a text label and a thumbnail image.
