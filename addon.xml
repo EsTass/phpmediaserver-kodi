@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.video.phpmediaserver"
-version="0.2.0"
+version="0.2.1"
 name="phpmediaserver"
 provider-name="Tass">
 <requires>
@@ -21,6 +21,7 @@ provider-name="Tass">
         <screenshot>resources\bg.jpg</screenshot>    
     </assets>
     <news>
+0.2.1 fix session check
 0.2.0 change to json list all actions
 0.1.9 search and update list
 0.1.8 auto update
@@ -32,8 +33,8 @@ provider-name="Tass">
 </extension>
 <extension point="xbmc.addon.repository"
               name="phpmediaserver">
-    <info compressed="false">https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml</info>
-    <checksum>https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml.md5</checksum>
-    <datadir zip="true">https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/</datadir>
+    <info compressed="false">https://github.com/EsTass/phpmediaserver-kodi/raw/master/addons.xml</info>
+    <checksum>https://github.com/EsTass/phpmediaserver-kodi/raw/master/addons.xml.md5</checksum>
+    <datadir zip="true">https://github.com/EsTass/phpmediaserver-kodi/raw/master/</datadir>
 </extension>
 </addon>

@@ -40,12 +40,20 @@ _handle = int(sys.argv[1])
 }
 '''
 
+def is_json(myjson):
+  try:
+    json_object = json.loads(myjson)
+  except ValueError, e:
+    return False
+  return True
+
 def extract_text(s, leader, trailer):
     end_of_leader = s.index(leader) + len(leader)
     start_of_trailer = s.index(trailer, end_of_leader)
     return s[end_of_leader:start_of_trailer]
 
 def login():
+    result = False
     PHPSESSION = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "phpsession" )
     USERNAME = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "username" )
     PASSWORD = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "password" )
@@ -65,8 +73,7 @@ def login():
 
         for cookie in r.cookies:
             #print (cookie.name, cookie.value)
-            if cookie.name == 'PHPSESSION':
-                PHPSESSION = cookie.value
+            PHPSESSION = cookie.value
             xbmcaddon.Addon('plugin.video.phpmediaserver').setSetting( id="phpsession", value=str(PHPSESSION) )
             result = True
     else:
@@ -86,11 +93,10 @@ def check_session():
 
         # GET with params in URL
         r = s.get(url, params=payload, verify=False)
-        data = json.loads(r.text)
-        if 'loging' in data and data['login'] == True:
-            result = True
-        else:
-            result = False
+        if is_json( r.text ):
+            data = json.loads(r.text)
+            if 'login' in data and data['login'] == True:
+                result = True
         
     return result
 
@@ -131,12 +137,16 @@ def list_categories():
 
     # GET with params in URL
     r = s.get(url, params=payload, verify=False)
-    data = json.loads(r.text)
-    if len( data ) <= 0:
-        result = False
-        xbmcgui.Dialog().notification( 'Categories Error', 'Error in category list 1.', xbmcgui.NOTIFICATION_ERROR )
+    if is_json( r.text ):
+        data = json.loads(r.text)
+        if len( data ) <= 0:
+            result = False
+            xbmcgui.Dialog().notification( 'Categories Error', 'Error in category list 1.', xbmcgui.NOTIFICATION_ERROR )
+        else:
+            create_folders( data )
     else:
-        create_folders( data )
+        result = False
+        xbmcgui.Dialog().notification( 'Categories Error', 'Error in category list 2.', xbmcgui.NOTIFICATION_ERROR )
         
     return result
 
