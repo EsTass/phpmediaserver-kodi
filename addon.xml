@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.video.phpmediaserver"
-version="0.1.9"
+version="0.2.0"
 name="phpmediaserver"
 provider-name="Tass">
 <requires>
@@ -21,6 +21,7 @@ provider-name="Tass">
         <screenshot>resources\bg.jpg</screenshot>    
     </assets>
     <news>
+0.2.0 change to json list all actions
 0.1.9 search and update list
 0.1.8 auto update
 0.1.6 change update method

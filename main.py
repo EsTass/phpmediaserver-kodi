@@ -40,33 +40,59 @@ _handle = int(sys.argv[1])
 }
 '''
 
-USERNAME = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "username" )
-PASSWORD = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "password" )
-url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+def extract_text(s, leader, trailer):
+    end_of_leader = s.index(leader) + len(leader)
+    start_of_trailer = s.index(trailer, end_of_leader)
+    return s[end_of_leader:start_of_trailer]
 
-payload = {'r' : 'r', 'action' : 'login', 'user': USERNAME, 'pass': PASSWORD}
+def login():
+    PHPSESSION = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "phpsession" )
+    USERNAME = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "username" )
+    PASSWORD = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "password" )
+    url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
 
-s = requests.session()
+    if check_session() == False:
+        payload = {'r' : 'r', 'action' : 'login', 'user': USERNAME, 'pass': PASSWORD}
 
-# POST with form-encoded data
-r = s.post(url, data=payload, verify=False)
+        s = requests.session()
 
-# Response, status etc
-#print( r.text.encode('unicode-escape') )
-#print( r.status_code.encode('unicode-escape') )
+        # POST with form-encoded data
+        r = s.post(url, data=payload, verify=False)
 
-for cookie in r.cookies:
-    #print (cookie.name, cookie.value)
-    PHPSESSION = cookie.value
+        # Response, status etc
+        #print( r.text.encode('unicode-escape') )
+        #print( r.status_code.encode('unicode-escape') )
+
+        for cookie in r.cookies:
+            #print (cookie.name, cookie.value)
+            if cookie.name == 'PHPSESSION':
+                PHPSESSION = cookie.value
+            xbmcaddon.Addon('plugin.video.phpmediaserver').setSetting( id="phpsession", value=str(PHPSESSION) )
+            result = True
+    else:
+        result = True
     
-payload = {'r' : 'r', 'action' : 'listkodi'}
+    return result
 
-# GET with params in URL
-r = s.get(url, params=payload, verify=False)
+def check_session():
+    result = False
+    
+    PHPSESSION = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( id="phpsession" )
+    url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+    
+    if len( PHPSESSION ) > 0:
+        payload = { 'r' : 'r', 'action' : 'kodi', 'saction': 'check', 'PHPSESSION': PHPSESSION }
+        s = requests.session()
 
-#print( r.text.encode('unicode-escape') )
-
-VIDEOS = json.loads(r.text)
+        # GET with params in URL
+        r = s.get(url, params=payload, verify=False)
+        data = json.loads(r.text)
+        if 'loging' in data and data['login'] == True:
+            result = True
+        else:
+            result = False
+        
+    return result
 
 
 def encoded_dict(in_dict):
@@ -80,13 +106,6 @@ def encoded_dict(in_dict):
         out_dict[k.encode('utf8')] = v
     return out_dict
 
-VIDEOS = encoded_dict( VIDEOS )
-
-def extract_text(s, leader, trailer):
-  end_of_leader = s.index(leader) + len(leader)
-  start_of_trailer = s.index(trailer, end_of_leader)
-  return s[end_of_leader:start_of_trailer]
-
 def get_url(**kwargs):
     """
     Create a URL for calling the plugin recursively from the given set of keyword arguments.
@@ -98,64 +117,50 @@ def get_url(**kwargs):
     """
     return '{0}?{1}'.format(_url, urlencode(kwargs, 'utf-8'))
 
-
-def get_categories():
-    """
-    Get the list of video categories.
-
-    Here you can insert some parsing code that retrieves
-    the list of video categories (e.g. 'Movies', 'TV-shows', 'Documentaries' etc.)
-    from some site or server.
-
-    .. note:: Consider using `generator functions <https://wiki.python.org/moin/Generators>`_
-        instead of returning lists.
-
-    :return: The list of video categories
-    :rtype: list
-    """
-    return VIDEOS.keys()
-
-
-def get_videos(category):
-    """
-    Get the list of videofiles/streams.
-
-    Here you can insert some parsing code that retrieves
-    the list of video streams in the given category from some site or server.
-
-    .. note:: Consider using `generators functions <https://wiki.python.org/moin/Generators>`_
-        instead of returning lists.
-
-    :param category: Category name
-    :type category: str
-    :return: the list of videos in the category
-    :rtype: list
-    """
-    return VIDEOS[category]
-
-
 def list_categories():
     """
     Create the list of video categories in the Kodi interface.
     """
+    
+    result = False
+    PHPSESSION = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "phpsession" )
+    url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+    
+    payload = { 'r' : 'r', 'action' : 'kodi', 'saction': 'categories', 'PHPSESSION': PHPSESSION }
+    s = requests.session()
+
+    # GET with params in URL
+    r = s.get(url, params=payload, verify=False)
+    data = json.loads(r.text)
+    if len( data ) <= 0:
+        result = False
+        xbmcgui.Dialog().notification( 'Categories Error', 'Error in category list 1.', xbmcgui.NOTIFICATION_ERROR )
+    else:
+        create_folders( data )
+        
+    return result
+
+def create_folders( data ):
+    
     # Set plugin category. It is displayed in some skins as the name
     # of the current section.
-    xbmcplugin.setPluginCategory(_handle, 'My Video Collection')
+    xbmcplugin.setPluginCategory(_handle, 'phpmediaserver')
     # Set plugin content. It allows Kodi to select appropriate views
     # for this type of content.
     xbmcplugin.setContent(_handle, 'videos')
     # Get video categories
-    categories = get_categories()
+    categories = data
     # Iterate through categories
     for category in categories:
+        category = category.encode( 'utf8' )
         # Create a list item with a text label and a thumbnail image.
         list_item = xbmcgui.ListItem(label=category)
         # Set graphics (thumbnail, fanart, banner, poster, landscape etc.) for the list item.
         # Here we use the same image for all items for simplicity's sake.
         # In a real-life plugin you need to set each image accordingly.
-        list_item.setArt({'thumb': VIDEOS[category][0]['thumb'],
-                          'icon': VIDEOS[category][0]['thumb'],
-                          'fanart': VIDEOS[category][0]['landscape']})
+        #list_item.setArt({'thumb': VIDEOS[category][0]['thumb'],
+        #                  'icon': VIDEOS[category][0]['thumb'],
+        #                  'fanart': VIDEOS[category][0]['landscape']})
         # Set additional info for the list item.
         # Here we use a category name for both properties for for simplicity's sake.
         # setInfo allows to set various information for an item.
@@ -174,7 +179,6 @@ def list_categories():
     # Finish creating a virtual folder.
     xbmcplugin.endOfDirectory(_handle)
 
-
 def list_videos(category):
     """
     Create the list of playable videos in the Kodi interface.
@@ -183,32 +187,62 @@ def list_videos(category):
     :type category: str
     """
     
+    result = False
+    
     #UPDATE
-    videos = get_videos(category)
-    if 'update' in videos[0] \
-    and videos[0]['update'] == True:
-        url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
-        payload = {'r' : 'r', 'action' : 'listkodi'}
-        r = s.get(url, params=payload, verify=False)
-        VIDEOS = json.loads(r.text)
+    if category.startswith( '*' ):
         list_categories()
         pass
     
-    #SEARCH
-    videos = get_videos(category)
-    if 'search' in videos[0] \
-    and videos[0]['search'] == True:
-        search = xbmcgui.Dialog().input( category )
+    #SERIES
+    if category.startswith( '+' ):
+        PHPSESSION = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "phpsession" )
         url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
-        payload = {'r' : 'r', 'action' : 'listkodi', 'search' : search }
+        payload = { 'r' : 'r', 'action' : 'kodi', 'saction': 'series', 'PHPSESSION': PHPSESSION }
+        s = requests.session()
+        # GET with params in URL
         r = s.get(url, params=payload, verify=False)
-        videos = json.loads(r.text)
+        data = json.loads(r.text)
+        if len( data ) <= 0:
+            result = False
+            xbmcgui.Dialog().notification( 'Series Error', 'Error in data 1.', xbmcgui.NOTIFICATION_ERROR )
+            return result
+        else:
+            create_folders( data )
         pass
+    
+    #SEARCH
+    if category.startswith( '-' ):
+        PHPSESSION = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "phpsession" )
+        url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+        search = xbmcgui.Dialog().input( category )
+        payload = { 'r' : 'r', 'action' : 'kodi', 'saction': 'search', 'PHPSESSION': PHPSESSION, 'search': search }
+        s = requests.session()
+        # GET with params in URL
+        r = s.get(url, params=payload, verify=False)
+        data = json.loads(r.text)
+        if len( data ) <= 0:
+            result = False
+            xbmcgui.Dialog().notification( 'Search Error', 'Error in search 1.', xbmcgui.NOTIFICATION_ERROR )
+            return result
+        else:
+            videos = data
     else:
-        # Get the list of videos in the category.
-        videos = get_videos(category)
-    
-    
+        PHPSESSION = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "phpsession" )
+        url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+        
+        payload = { 'r' : 'r', 'action' : 'kodi', 'saction': 'category', 'cat': category, 'PHPSESSION': PHPSESSION }
+        s = requests.session()
+
+        # GET with params in URL
+        r = s.get(url, params=payload, verify=False)
+        data = json.loads(r.text)
+        if len( data ) <= 0:
+            result = False
+            xbmcgui.Dialog().notification( 'Categories List Error', 'Error in category list 1.', xbmcgui.NOTIFICATION_ERROR )
+            return result
+        videos = data
+        
     # Set plugin category. It is displayed in some skins as the name
     # of the current section.
     xbmcplugin.setPluginCategory(_handle, category)
@@ -217,6 +251,7 @@ def list_videos(category):
     xbmcplugin.setContent(_handle, 'videos')
     # Iterate through videos.
     for video in videos:
+        video = encoded_dict( video )
         # Create a list item with a text label and a thumbnail image.
         list_item = xbmcgui.ListItem(label=video['name'])
         # Set additional info for the list item.
@@ -237,11 +272,13 @@ def list_videos(category):
         is_folder = False
         # Add our item to the Kodi virtual folder listing.
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
+        result = True
     # Add a sort method for the virtual folder items (alphabetically, ignore articles)
     xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     # Finish creating a virtual folder.
     xbmcplugin.endOfDirectory(_handle)
-
+    
+    return result
 
 def play_video(path):
     """
@@ -264,8 +301,8 @@ def play_video(path):
     
     if time > 0:
         timetotal = 0
-        #xbmcgui.Dialog().ok( "Time: ", str( time ))
-        #urltime = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
+        PHPSESSION = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "phpsession" )
+        url = xbmcaddon.Addon('plugin.video.phpmediaserver').getSetting( "url" )
         s = requests.session()
         urltime = url
         payload = { 'r' : 'r', 'action' : 'playstop', 'timeplayed' : int( time ), \
@@ -283,6 +320,11 @@ def router(paramstring):
     :param paramstring: URL encoded plugin paramstring
     :type paramstring: str
     """
+    
+    if login()  == False:
+        xbmcgui.Dialog().notification( 'Login error', 'Error login to server, change config.', xbmcgui.NOTIFICATION_ERROR )
+        return True
+    
     # Parse a URL-encoded paramstring to the dictionary of
     # {<parameter>: <value>} elements
     params = dict(parse_qsl(paramstring))
