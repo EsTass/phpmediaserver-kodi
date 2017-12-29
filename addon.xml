@@ -33,6 +33,6 @@ provider-name="Tass">
               name="phpmediaserver">
     <info compressed="false">https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml</info>
     <checksum>https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/addons.xml.md5</checksum>
-    <datadir>https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/</datadir>
+    <datadir zip="true">https://raw.githubusercontent.com/EsTass/phpmediaserver-kodi/master/</datadir>
 </extension>
 </addon>
