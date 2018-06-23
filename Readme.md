@@ -1,7 +1,7 @@
 # PHPMEDIASERVER KODI-ADDON
 
-![example1](https://s17.postimg.org/5smhgjw0r/Screenshot_20171230_160906.png)
-![example2](https://s17.postimg.org/65dvmq6kr/Screenshot_20171230_161112.png)
+![example1](http://i65.tinypic.com/21ccaix.png)
+![example2](http://i66.tinypic.com/5kgk2h.png)
 
 - Config url, user and password
 - Json lists from server
